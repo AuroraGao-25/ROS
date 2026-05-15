@@ -129,8 +129,27 @@ class AttentionDetectNode:
         self.pub.publish(json.dumps(features))
 
         if self.show_debug_image:
+            self.draw_debug_overlay(frame, features)
             self.cv2.imshow("focus_companion attention_detect", frame)
             self.cv2.waitKey(1)
+
+    def draw_debug_overlay(self, frame, features):
+        status = "face" if features["face_detected"] else "no face"
+        lines = [
+            "Focus Companion Camera View",
+            "status: {}".format(status),
+            "yaw: {:.3f}  pitch: {:.3f}".format(features["head_yaw"], features["head_pitch"]),
+            "ear: {:.3f}".format(features["eye_aspect_ratio"]),
+            "eye_closed: {}  head_turned: {}  head_down: {}".format(
+                features["eye_closed"],
+                features["head_turned"],
+                features["head_down"],
+            ),
+        ]
+        for idx, text in enumerate(lines):
+            y = 28 + idx * 24
+            self.cv2.putText(frame, text, (12, y), self.cv2.FONT_HERSHEY_SIMPLEX, 0.58, (0, 0, 0), 4, self.cv2.LINE_AA)
+            self.cv2.putText(frame, text, (12, y), self.cv2.FONT_HERSHEY_SIMPLEX, 0.58, (80, 255, 80), 1, self.cv2.LINE_AA)
 
 
 if __name__ == "__main__":

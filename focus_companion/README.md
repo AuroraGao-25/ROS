@@ -40,6 +40,12 @@ Run with a real camera topic:
 roslaunch focus_companion focus_companion.launch camera_topic:=/camera/image_raw
 ```
 
+Run with a real-time camera preview window:
+
+```bash
+roslaunch focus_companion focus_companion.launch camera_topic:=/camera/image_raw show_debug_image:=true
+```
+
 Run without a camera, using a scripted demo state sequence:
 
 ```bash
