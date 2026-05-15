@@ -18,14 +18,21 @@ class AttentionDetectNode:
         self.head_down_pitch_threshold = rospy.get_param("~head_down_pitch_threshold", 0.18)
 
         try:
-            import cv2
             import mediapipe as mp
             from cv_bridge import CvBridge
         except Exception as exc:
-            rospy.logerr("attention_detect requires cv_bridge, opencv-python and mediapipe: %s", exc)
+            rospy.logerr("attention_detect requires cv_bridge and mediapipe: %s", exc)
             raise
 
-        self.cv2 = cv2
+        self.cv2 = None
+        if self.show_debug_image:
+            try:
+                import cv2
+                self.cv2 = cv2
+            except Exception as exc:
+                rospy.logwarn("OpenCV cv2 is unavailable, disabling debug image: %s", exc)
+                self.show_debug_image = False
+
         self.mp = mp
         self.bridge = CvBridge()
         self.face_mesh = mp.solutions.face_mesh.FaceMesh(
@@ -92,7 +99,7 @@ class AttentionDetectNode:
             rospy.logwarn_throttle(2.0, "cv_bridge conversion failed: %s", exc)
             return
 
-        rgb = self.cv2.cvtColor(frame, self.cv2.COLOR_BGR2RGB)
+        rgb = frame[:, :, ::-1].copy()
         result = self.face_mesh.process(rgb)
 
         if result.multi_face_landmarks:

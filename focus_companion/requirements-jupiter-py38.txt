@@ -1,0 +1,9 @@
+# Jupiter ROS1 / Python 3.8.10 compatible dependency set.
+#
+# Do not use unpinned `pip install mediapipe` on Python 3.8. The latest
+# MediaPipe releases no longer advertise Python 3.8 support.
+mediapipe==0.10.14
+
+# Prefer the ROS/Ubuntu OpenCV package that is already compatible with
+# cv_bridge. Install opencv-python only on a non-ROS laptop test environment.
+# opencv-python==4.10.0.84

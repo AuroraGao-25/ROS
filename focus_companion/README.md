@@ -63,10 +63,28 @@ rostopic echo /audio/command
 The real camera node needs:
 
 ```bash
-pip install mediapipe opencv-python
+pip install mediapipe
 ```
 
-On Juno 2, `cv_bridge`, `sensor_msgs`, `std_msgs`, `rospy`, and `sound_play` should come from the ROS environment.
+On a non-ROS laptop test environment, install `opencv-python` only if you want `show_debug_image:=true`. On the robot, `cv_bridge`, `sensor_msgs`, `std_msgs`, `rospy`, `sound_play`, and usually `cv2` should come from the ROS/Ubuntu environment.
+
+## Jupiter ROS1 / Python 3.8.10 Notes
+
+For the Jupiter ROS1 environment with Python `3.8.10`, use the pinned dependency file:
+
+```bash
+python3 -m pip install -r focus_companion/requirements-jupiter-py38.txt
+```
+
+Do not blindly install the latest MediaPipe on Python 3.8. Current MediaPipe releases no longer advertise Python 3.8 support, while `mediapipe==0.10.14` does.
+
+Prefer the robot's existing ROS/OpenCV stack for `cv_bridge`. If `cv2` is already available through Ubuntu/ROS packages, avoid installing `opencv-python` with pip on the robot unless necessary.
+
+Before running the launch file, make the scripts executable on the robot:
+
+```bash
+chmod +x focus_companion/scripts/*.py
+```
 
 ## Tuning Parameters
 

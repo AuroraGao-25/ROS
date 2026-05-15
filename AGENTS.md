@@ -159,10 +159,18 @@ ROS dependencies:
 Python dependencies for camera detection:
 
 ```bash
-pip install mediapipe opencv-python
+pip install mediapipe
 ```
 
-On Juno 2, prefer using the robot's existing ROS and MediaPipe environment if available.
+On Juno 2, prefer using the robot's existing ROS/OpenCV environment if available. Install `opencv-python` only for non-ROS laptop testing or debug image display.
+
+For Jupiter ROS1 with Python `3.8.10`, use:
+
+```bash
+python3 -m pip install -r focus_companion/requirements-jupiter-py38.txt
+```
+
+The pinned MediaPipe version is intentional. Latest MediaPipe releases may not support Python 3.8.
 
 ## Implementation Rules For Future Agents
 
