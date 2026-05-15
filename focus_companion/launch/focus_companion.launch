@@ -1,0 +1,20 @@
+<launch>
+  <arg name="camera_topic" default="/camera/image_raw"/>
+  <arg name="show_debug_image" default="false"/>
+  <arg name="use_demo_driver" default="false"/>
+
+  <node unless="$(arg use_demo_driver)" pkg="focus_companion" type="attention_detect.py" name="attention_detect" output="screen">
+    <param name="camera_topic" value="$(arg camera_topic)"/>
+    <param name="show_debug_image" value="$(arg show_debug_image)"/>
+  </node>
+
+  <node unless="$(arg use_demo_driver)" pkg="focus_companion" type="attention_smoother.py" name="attention_smoother" output="screen"/>
+  <node unless="$(arg use_demo_driver)" pkg="focus_companion" type="state_judge.py" name="state_judge" output="screen"/>
+
+  <node if="$(arg use_demo_driver)" pkg="focus_companion" type="demo_state_driver.py" name="demo_state_driver" output="screen"/>
+
+  <node pkg="focus_companion" type="response_manager.py" name="response_manager" output="screen">
+    <param name="drowsy_wav_path" value="$(find focus_companion)/sounds/energize.wav"/>
+  </node>
+  <node pkg="focus_companion" type="audio_player.py" name="audio_player" output="screen"/>
+</launch>

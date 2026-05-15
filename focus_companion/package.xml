@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>focus_companion</name>
+  <version>0.1.0</version>
+  <description>Focus Companion attention-state robot demo for Juno 2.</description>
+
+  <maintainer email="student@example.com">WQF7010 Group Project</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>sound_play</exec_depend>
+
+  <export/>
+</package>
