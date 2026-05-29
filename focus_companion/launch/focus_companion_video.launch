@@ -1,0 +1,47 @@
+<launch>
+  <!-- ========================= -->
+  <!-- Video simulation settings -->
+  <!-- ========================= -->
+
+  <!-- Default test video path -->
+  <arg name="video_path" default="$(find focus_companion)/test_videos/focus_test.mp4"/>
+
+  <!-- Simulated camera topic -->
+  <arg name="camera_topic" default="/sim_camera/image_raw"/>
+
+  <!-- Video publish FPS -->
+  <arg name="fps" default="15"/>
+
+  <!-- Do not open OpenCV GUI window in The Construct -->
+  <arg name="show_debug_image" default="false"/>
+
+  <!-- Whether to start demo_state_driver. Must be false for real video pipeline. -->
+  <arg name="use_demo_driver" default="false"/>
+
+
+  <!-- ========================= -->
+  <!-- Publish video as ROS image -->
+  <!-- ========================= -->
+
+  <node pkg="focus_companion"
+        type="video_file_publisher.py"
+        name="video_file_publisher"
+        output="screen">
+    <param name="video_path" value="$(arg video_path)"/>
+    <param name="topic" value="$(arg camera_topic)"/>
+    <param name="fps" value="$(arg fps)"/>
+    <param name="loop" value="true"/>
+  </node>
+
+
+  <!-- ========================= -->
+  <!-- Start original pipeline -->
+  <!-- ========================= -->
+
+  <include file="$(find focus_companion)/launch/focus_companion.launch">
+    <arg name="camera_topic" value="$(arg camera_topic)"/>
+    <arg name="show_debug_image" value="$(arg show_debug_image)"/>
+    <arg name="use_demo_driver" value="$(arg use_demo_driver)"/>
+  </include>
+
+</launch>
