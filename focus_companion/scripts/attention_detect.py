@@ -16,6 +16,9 @@ class AttentionDetectNode:
         self.eye_closed_ear = rospy.get_param("~eye_closed_ear", 0.19)
         self.head_yaw_threshold = rospy.get_param("~head_yaw_threshold", 0.23)
         self.head_down_pitch_threshold = rospy.get_param("~head_down_pitch_threshold", 0.18)
+        self.debug_window_name = "focus_companion attention_detect"
+        self.latest_debug_frame = None
+        self.last_image_time = None
 
         try:
             import mediapipe as mp
@@ -25,10 +28,14 @@ class AttentionDetectNode:
             raise
 
         self.cv2 = None
+        self.np = None
         if self.show_debug_image:
             try:
                 import cv2
+                import numpy as np
                 self.cv2 = cv2
+                self.np = np
+                self.cv2.namedWindow(self.debug_window_name, self.cv2.WINDOW_NORMAL)
             except Exception as exc:
                 rospy.logwarn("OpenCV cv2 is unavailable, disabling debug image: %s", exc)
                 self.show_debug_image = False
@@ -45,6 +52,8 @@ class AttentionDetectNode:
 
         self.pub = rospy.Publisher(self.output_topic, String, queue_size=10)
         self.sub = rospy.Subscriber(self.camera_topic, Image, self.on_image, queue_size=1, buff_size=2**24)
+        if self.show_debug_image:
+            self.debug_timer = rospy.Timer(rospy.Duration(0.2), self.on_debug_timer)
         rospy.loginfo("attention_detect: %s -> %s", self.camera_topic, self.output_topic)
 
     @staticmethod
@@ -130,8 +139,33 @@ class AttentionDetectNode:
 
         if self.show_debug_image:
             self.draw_debug_overlay(frame, features)
-            self.cv2.imshow("focus_companion attention_detect", frame)
+            self.latest_debug_frame = frame
+            self.last_image_time = rospy.Time.now()
+            rospy.loginfo_throttle(3.0, "attention_detect receiving images from %s", self.camera_topic)
+
+    def on_debug_timer(self, _event):
+        if not self.show_debug_image:
+            return
+
+        if self.latest_debug_frame is None:
+            frame = self.np.zeros((360, 640, 3), dtype=self.np.uint8)
+            lines = [
+                "Focus Companion Camera View",
+                "waiting for images...",
+                "topic: {}".format(self.camera_topic),
+                "check: rostopic hz {}".format(self.camera_topic),
+            ]
+            for idx, text in enumerate(lines):
+                y = 40 + idx * 34
+                self.cv2.putText(frame, text, (20, y), self.cv2.FONT_HERSHEY_SIMPLEX, 0.72, (80, 255, 80), 2, self.cv2.LINE_AA)
+        else:
+            frame = self.latest_debug_frame
+
+        try:
+            self.cv2.imshow(self.debug_window_name, frame)
             self.cv2.waitKey(1)
+        except Exception as exc:
+            rospy.logwarn_throttle(5.0, "debug image window failed: %s", exc)
 
     def draw_debug_overlay(self, frame, features):
         status = "face" if features["face_detected"] else "no face"

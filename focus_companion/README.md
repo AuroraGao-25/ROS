@@ -46,6 +46,28 @@ Run with a real-time camera preview window:
 roslaunch focus_companion focus_companion.launch camera_topic:=/camera/image_raw show_debug_image:=true
 ```
 
+If your robot uses the `usb_cam` package, start both `usb_cam` and Focus Companion with:
+
+```bash
+roslaunch focus_companion focus_companion_usb_cam.launch
+```
+
+This launch subscribes Focus Companion to:
+
+```text
+/usb_cam/image_raw
+```
+
+If the preview window stays on "waiting for images", verify the camera topic:
+
+```bash
+rostopic list | grep image
+rostopic info /camera/image_raw
+rostopic hz /camera/image_raw
+```
+
+Replace `/camera/image_raw` with the real topic, such as `/camera/rgb/image_raw`.
+
 Run without a camera, using a scripted demo state sequence:
 
 ```bash
