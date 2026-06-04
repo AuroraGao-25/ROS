@@ -1,5 +1,5 @@
 <launch>
-  <arg name="video_device" default="/dev/video0"/>
+  <arg name="video_device" default="/dev/video2"/>
   <arg name="image_width" default="640"/>
   <arg name="image_height" default="480"/>
   <arg name="pixel_format" default="yuyv"/>
@@ -15,6 +15,8 @@
     <param name="camera_frame_id" value="usb_cam"/>
     <param name="io_method" value="mmap"/>
   </node>
+
+  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen" />
 
   <include file="$(find focus_companion)/launch/focus_companion.launch">
     <arg name="camera_topic" value="/usb_cam/image_raw"/>

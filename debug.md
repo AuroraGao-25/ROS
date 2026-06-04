@@ -7,15 +7,14 @@ rospack find focus_companion  # /home/user/catkin_ws/src/focus_companion
 
 chmod +x ~/catkin_ws/src/focus_companion/scripts/*.py
 
-
 ```
 
 
 # 本地调试
 ```
-ls /dev/video*  # /dev/video0
+ls /dev/video*  # our camera device path is: /dev/video2 
 
-roslaunch focus_companion focus_companion_usb_cam.launch video_device:=/dev/video0
+roslaunch focus_companion focus_companion_usb_cam.launch # run the code
 
 
 ```

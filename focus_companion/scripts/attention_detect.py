@@ -9,7 +9,8 @@ from std_msgs.msg import String
 
 class AttentionDetectNode:
     def __init__(self):
-        self.camera_topic = rospy.get_param("~camera_topic", "/camera/image_raw")
+        # FIX 1: Changed default topic to match your Jupiter Robot camera (/usb_cam/image_raw)
+        self.camera_topic = rospy.get_param("~camera_topic", "/usb_cam/image_raw")
         self.output_topic = rospy.get_param("~output_topic", "/attention/features")
         self.show_debug_image = rospy.get_param("~show_debug_image", False)
         self.max_no_face_pitch = rospy.get_param("~max_no_face_pitch", 99.0)
@@ -52,8 +53,8 @@ class AttentionDetectNode:
 
         self.pub = rospy.Publisher(self.output_topic, String, queue_size=10)
         self.sub = rospy.Subscriber(self.camera_topic, Image, self.on_image, queue_size=1, buff_size=2**24)
-        if self.show_debug_image:
-            self.debug_timer = rospy.Timer(rospy.Duration(0.2), self.on_debug_timer)
+        
+        # FIX 2: Removed the rospy.Timer. We will handle GUI updates in the main thread loop.
         rospy.loginfo("attention_detect: %s -> %s", self.camera_topic, self.output_topic)
 
     @staticmethod
@@ -143,7 +144,8 @@ class AttentionDetectNode:
             self.last_image_time = rospy.Time.now()
             rospy.loginfo_throttle(3.0, "attention_detect receiving images from %s", self.camera_topic)
 
-    def on_debug_timer(self, _event):
+    # FIX 3: Renamed method and removed the _event argument.
+    def update_gui(self):
         if not self.show_debug_image:
             return
 
@@ -182,11 +184,18 @@ class AttentionDetectNode:
         ]
         for idx, text in enumerate(lines):
             y = 28 + idx * 24
+            # Draw text outline for readability
             self.cv2.putText(frame, text, (12, y), self.cv2.FONT_HERSHEY_SIMPLEX, 0.58, (0, 0, 0), 4, self.cv2.LINE_AA)
             self.cv2.putText(frame, text, (12, y), self.cv2.FONT_HERSHEY_SIMPLEX, 0.58, (80, 255, 80), 1, self.cv2.LINE_AA)
 
 
 if __name__ == "__main__":
     rospy.init_node("attention_detect")
-    AttentionDetectNode()
-    rospy.spin()
+    node = AttentionDetectNode()
+    
+    # FIX 4: Run the OpenCV GUI updates safely in the main execution thread.
+    rate = rospy.Rate(30) # 30 Hz refresh rate
+    while not rospy.is_shutdown():
+        if node.show_debug_image:
+            node.update_gui()
+        rate.sleep()
